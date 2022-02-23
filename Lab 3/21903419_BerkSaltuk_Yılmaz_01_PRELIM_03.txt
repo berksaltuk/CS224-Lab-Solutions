@@ -1,0 +1,339 @@
+CS224
+03
+01
+Berk Saltuk Yılmaz
+21903419
+
+
+#########################################
+#					#
+#                Part 1         	#
+#					#
+#########################################
+
+##
+## Instruction Count Program
+## This program counts add and lw instructions.
+## 
+
+#########################################
+#					#
+#  Created by Berk Saltuk Yılmaz (bsy)	#
+#					#
+#########################################
+
+
+#################################
+#				#
+#     	 text segment		#
+#				#
+#################################
+
+.text			
+	
+main:
+	la $a0, prompt	# output prompt message on terminal
+       	li $v0, 4	# syscall 4 prints the string
+       	syscall
+	
+	add $zero, $zero, $zero # to try if it is counting add instructions
+	add $zero, $zero, $zero
+	
+	la $a0, main
+       	la $a1, instructionCount     	   
+	jal instructionCount
+	
+	move $s6, $v0
+	move $s7, $v1
+	
+	la $a0, numOfAdd
+	li $v0, 4
+	syscall
+	
+	move $a0, $s6 
+	li $v0, 1
+	syscall
+	
+	la $a0, endl
+	li $v0, 4
+	syscall
+	
+	la $a0, numOfLW
+	li $v0, 4
+	syscall
+	
+	move $a0, $s7 
+	li $v0, 1
+	syscall
+	
+	la $a0, endl
+	li $v0, 4
+	syscall
+	
+	la $a0, instructionCount
+       	la $a1, end    	   
+	jal instructionCount
+
+	move $s6, $v0
+	move $s7, $v1
+
+	la $a0, numOfAdd
+	li $v0, 4
+	syscall
+	
+	move $a0, $s6 
+	li $v0, 1
+	syscall
+	
+	la $a0, endl
+	li $v0, 4
+	syscall
+	
+	la $a0, numOfLW
+	li $v0, 4
+	syscall
+	
+	move $a0, $s7 
+	li $v0, 1
+	syscall
+	
+	la $a0, endl
+	li $v0, 4
+	syscall
+	
+	j end
+	
+instructionCount:
+	add $zero, $zero, $zero # to try if it is counting add instructions
+	add $zero, $zero, $zero
+	add $zero, $zero, $zero
+	add $zero, $zero, $zero
+	add $zero, $zero, $zero
+	add $zero, $zero, $zero
+		
+	move $s0, $a0
+	move $s1, $a1
+	addi $sp, $sp, -8
+	sw $s0, 0($sp)
+	sw $s1, 4($sp)
+
+	li $s2, 0
+	li $s3, 0
+
+	loop:
+		beq $s0, $s1, done
+		lw $s4, 0($s0)
+		srl $s5, $s4, 26
+		beq $s5, 35, plusLW
+		beq $s5, 0, checkFunc
+		addi $s0, $s0, 4
+		j loop
+	
+	checkFunc:
+		and $s5, $s4, 63
+		beq $s5, 32, plusAdd
+		addi $s0, $s0, 4
+		j loop
+	plusAdd:
+		addi $s2, $s2, 1
+		addi $s0, $s0, 4
+		j loop
+	plusLW:
+		addi $s3, $s3, 1
+		addi $s0, $s0, 4
+		j loop
+		
+	done:   
+		move $v0, $s2
+		move $v1, $s3
+		lw $s1, 4($sp)
+		lw $s0, 0($sp)
+		addi $sp, $sp, 8
+		jr $ra
+end:
+	la $a0, bye     
+       	li $v0, 4	# syscall 4 prints the string
+       	syscall	
+	li $v0,10		# system call to exit
+        syscall		#    bye bye
+
+#################################
+#				#
+#     	 data segment		#
+#				#
+#################################
+
+	.data
+prompt: .asciiz "Welcome... This program counts lw (load word) and add instructions!\n"
+wait: .asciiz "Work in progress...\n"
+bye:    .asciiz "Thanks for using this program! \n"
+endl:	.asciiz "\n"
+addCount: .word 0
+lwCount: .word 0
+numOfAdd: .asciiz "The number of the add instructions in this program is: "
+numOfLW: .asciiz "The number of the load word instructions in this program is: "
+##
+## end of file lab3part1.asm
+
+
+#########################################
+#					#
+#                Part 2         	#
+#					#
+#########################################
+
+##
+## Recursive Division Program
+## Recursively subtracts divisor from divident and calculates quotient and remainder.
+## Inputs the dividend and divisor.
+
+#########################################
+#					#
+#  Created by Berk Saltuk Yılmaz (bsy)	#
+#					#
+#########################################
+
+
+#################################
+#				#
+#     	 text segment		#
+#				#
+#################################
+
+.text		
+	.globl menu	
+	
+menu:
+	la $a0, prompt	# output prompt message on terminal
+       	li $v0, 4	# syscall 4 prints the string
+       	syscall
+       	
+       	j multCaller
+       	
+again:       	
+       	la $a0, oneMore	# output prompt message on terminal
+       	li $v0, 4	# syscall 4 prints the string
+       	syscall
+       	
+       	li $v0, 5
+        syscall
+        
+        beq $v0, 1, multCaller
+        beq $v0, 2, exit
+        
+	j menu
+
+multCaller:	
+	la $a0, getNum1	# output prompt message on terminal
+       	li $v0, 4	# syscall 4 prints the string
+       	syscall
+       	
+       	li $v0, 5
+        syscall
+       	sw $v0, dividend
+       	
+       	la $a0, getNum2	# output prompt message on terminal
+       	li $v0, 4	# syscall 4 prints the string
+       	syscall
+       	
+       	li $v0, 5
+        syscall
+       	sw $v0, divisor
+       	
+       	lw $t0, divisor
+       	beq $t0, $zero, warning
+       	
+       	la $a0, wait	# output prompt message on terminal
+       	li $v0, 4	# syscall 4 prints the string
+       	syscall
+
+       	lw $a0, dividend
+       	lw $a1, divisor
+       	jal recursiveDivision
+	move $s5, $v0
+	move $s6, $v1
+	
+	la $a0, resultMsg1	# output prompt message on terminal
+       	li $v0, 4	# syscall 4 prints the string
+       	syscall
+       	
+       	move $a0, $s5	
+       	li $v0, 1
+       	syscall
+       	
+       	la $a0, endl   
+       	li $v0, 4	# syscall 4 prints the string
+       	syscall
+       	
+       	la $a0, resultMsg2	# output prompt message on terminal
+       	li $v0, 4	# syscall 4 prints the string
+       	syscall
+       	
+       	move $a0, $s6	
+       	li $v0, 1
+       	syscall
+       	
+       	la $a0, endl   
+       	li $v0, 4	# syscall 4 prints the string
+       	syscall
+       	
+ 	j again
+ 	
+recursiveDivision:	
+    	addi $sp, $sp, -12
+	sw $ra, 0($sp) 
+	sw $a0, 4($sp)
+	sw $a1, 8($sp) 
+
+    	li $v0, 0	
+    	blt $a0, $a1, done
+    	sub $a0, $a0, $a1
+    	move $v1, $a0
+    	 
+    	jal recursiveDivision
+    	addi $v0, $v0, 1
+	#addi $sp, $sp, 12
+    	
+done:
+	lw $ra, 0($sp)
+	lw $a0, 4($sp)
+	lw $a1, 8($sp)
+	addi $sp, $sp, 12
+	jr $ra    
+
+		
+warning: 	
+
+ 	la $a0, warningMsg   
+       	li $v0, 4	# syscall 4 prints the string
+       	syscall
+
+ 	j again
+exit:   
+	la $a0, bye     
+       	li $v0, 4	# syscall 4 prints the string
+       	syscall	
+	li $v0,10		# system call to exit
+        syscall		#    bye bye      	
+#################################
+#				#
+#     	 data segment		#
+#				#
+#################################
+
+	.data
+prompt: .asciiz "Welcome! This is a program divides your numbers recursively!\n"
+getNum1: .asciiz "Which number do you want to divide?\n"
+getNum2: .asciiz "Which number is divisor?\n"
+wait: .asciiz "Work in progress...\n"
+oneMore: .asciiz "All done... Type 1 if you want one more division or 2 to exit!\n"
+bye:    .asciiz "Thanks for using this program! \n"
+space: .asciiz "         "
+endl:	.asciiz "\n"
+divisor: .word 0
+dividend: .word 0
+resultMsg1: .asciiz "Quotient is: "
+resultMsg2: .asciiz "Remainder is: "
+warningMsg: .asciiz "Divisor cannot be zero!\n"
+##
+## end of file lab3part2.asm

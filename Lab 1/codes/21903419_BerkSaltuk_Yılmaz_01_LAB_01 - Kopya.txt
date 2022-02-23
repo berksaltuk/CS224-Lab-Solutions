@@ -1,0 +1,697 @@
+CS224
+01
+01
+Berk Saltuk Yılmaz
+21903419
+
+
+## Part 1
+## A program which checks whether an array is symmetric.
+## Inputs the size and elements from the user.
+##
+
+#########################################
+#					#
+#  Created by Berk Saltuk Yılmaz (bsy)	#
+#					#
+#########################################
+
+
+#################################
+#					 	#
+#     	 text segment		#
+#						#
+#################################
+
+.text		
+	.globl __start	
+
+__start:
+       la $a0, prompt	# output prompt message on terminal
+       li $v0, 4	# syscall 4 prints the string
+       syscall
+       
+       la $a0, enterSize # asking for the size of the array
+       li $v0, 4 # syscall 4 prints the string
+       syscall
+       
+       li $v0, 5
+       syscall
+       sw $v0, arrsize # keeping the size of the array
+       
+       jal readArray # reading the array elements
+       
+       jal printArray # printing the array for error checking purposes
+       
+       la $a0, 0($t0)
+       jal isSymmetric
+	
+       la $a0, bye	# output prompt message on terminal
+       li $v0, 4	# syscall 4 prints the string
+       syscall
+       
+       
+       li $v0,10		# system call to exit
+       syscall		#    bye bye
+       
+readArray:
+	la $t0, array
+	lw $t1, arrsize
+	
+	la $a0, enterElement # asking for the elements of the array
+        li $v0, 4 # syscall 4 prints the string
+        syscall
+	
+	read:
+		li $v0, 5
+        	syscall
+		
+		sw $v0, 0($t0)
+		addi $t0, $t0, 4 # incrementing the addres
+		subi $t1, $t1, 1 # decrementing the counter
+		bgt $t1, $zero, read
+	jr $ra
+
+printArray: 
+	la $t0, array
+	lw $t1, arrsize
+	
+	la $a0, contents # intro message for printing elements
+        li $v0, 4 # syscall 4 prints the string
+        syscall
+        
+        print: 
+        	lw $a0, 0($t0)
+        	li $v0, 1
+        	syscall
+        	
+        	la $a0, space	# output prompt message on terminal
+       		li $v0, 4	# syscall 4 prints the string
+      		syscall
+      		
+        	addi $t0, $t0, 4 # incrementing the addres
+		subi $t1, $t1, 1 # decrementing the counter
+		bgt $t1, $zero, print
+        
+        la $a0, endl	# output prompt message on terminal
+        li $v0, 4	# syscall 4 prints the string
+        syscall	
+        jr $ra
+
+isSymmetric: 
+	 
+	la $t0, array # first element's address
+	subi $t1, $a0, 4 # last element's address
+	lookForSymmetry:
+		
+		lw $t2, 0($t0) # assigning first and last elements
+		lw $t3, 0($t1) 
+		sw $t2, 0($t0) 
+		sw $t3, 0($t1) 
+		
+		bne $t2, $t3, notSymmetric # if the symmetric elements i.t.o. indexes n.e. branch not sym.  
+		sub $t2, $t1, $t0 # distance between addresses
+		addi $t0, $t0, 4 # incrementing address
+		subi $t1, $t1, 4 # decrementing address
+		
+		bge $t2, 4, lookForSymmetry # if the distance is more than one element, continue with loop
+		
+		j symmetric # if it is not branched to notSymmetric part, then jump to the symmetric part
+	
+	notSymmetric:
+		la $a0, ans2	# output prompt message on terminal
+        	li $v0, 4	# syscall 4 prints the string
+        	syscall	
+        	jr $ra
+        symmetric:
+		la $a0, ans1	# output prompt message on terminal
+        	li $v0, 4	# syscall 4 prints the string
+        	syscall	
+        	jr $ra
+#################################
+#					 	#
+#     	 data segment		#
+#						#
+#################################
+
+	.data
+array: .space 40 #4 for each so max 10 elements
+arrsize: .word 0
+prompt:	.asciiz "Now watch and see, I will check if your array is symmetric. \n"
+enterSize: .asciiz "Can you enter the size of your array? (Max 10 would be good :D) \n"
+enterElement: .asciiz "Can you enter the elements of your array? \n"
+contents: .asciiz "Contents of your array: \n"
+msgsym: .asciiz "Let's see if this array is symmetric... \n"
+ans1:	.asciiz "The array is symmetric. \n"
+ans2:   .asciiz "The array is not symmetric. \n"
+bye:    .asciiz "Thanks for using this program! \n"
+space: .asciiz " "
+endl:	.asciiz "\n"
+
+##
+## end of file lab1part1.asm
+
+
+
+## Part 2
+## A program which evaluates  x= a * (b - c) % d.
+## Inputs a, b, c and d from the user.
+##
+
+#########################################
+#					#
+#  Created by Berk Saltuk Yılmaz (bsy)	#
+#					#
+#########################################
+
+
+#################################
+#					 	#
+#     	 text segment		#
+#						#
+#################################
+
+.text		
+	.globl __start	
+	
+__start:
+
+	la $a0, welcome # prompting welcome message
+	li $v0, 4
+	syscall
+	
+	la $a0, entera # input a msg
+	li $v0, 4
+	syscall
+
+        li $v0, 5 # save a
+        syscall
+        sw $v0, a
+        
+        
+        la $a0, endl 
+	li $v0, 4
+	syscall
+	
+        la $a0, enterb # input b msg
+	li $v0, 4
+	syscall
+	
+        li $v0, 5 # save b
+        syscall
+        sw $v0, b
+        
+        la $a0, endl
+	li $v0, 4
+	syscall
+	
+	la $a0, enterc # input c msg
+	li $v0, 4
+	syscall
+	
+        li $v0, 5 # save c
+        syscall
+        sw $v0, c
+        
+        la $a0, endl
+	li $v0, 4
+	syscall
+	
+	la $a0, enterd # input d msg
+	li $v0, 4
+	syscall
+	
+        li $v0, 5 # save d
+        syscall
+        sw $v0, d
+        
+        la $a0, endl
+	li $v0, 4
+	syscall
+	
+	la $a0, hmm # calculating msg
+	li $v0, 4
+	syscall
+
+	lw $a0, a # passing 4 arguments to calculator method
+	lw $a1, b
+	lw $a2, c
+	lw $a3, d
+	jal calculator # jump and link calculator
+	
+	la $a0, result # prompting result msg
+	li $v0, 4
+	syscall
+	
+	lw $a0, x
+	li $v0 1
+	syscall
+	
+	la $a0, endl
+	li $v0, 4
+	syscall
+	
+	la $a0, bye # bye message
+	li $v0, 4
+	syscall
+	
+	li $v0,10		# system call to exit
+        syscall		#    bye bye
+        
+calculator:
+        
+        sub $t0, $a1, $a2 # temp = b - c
+        
+        mult $a0, $t0 # a * ( b - c )
+        mflo $t1 # moving the lo register's content to $t1, ignoring the overflow
+        
+        bge $t1, $zero, positive # if result of the part before modulo >= 0, branch to positive part
+
+	negative: 
+		
+		loop: # t1 = t1 + d until the result is greater than 0
+			add, $t1, $t1, $a3
+			ble $t1, $zero, loop
+		
+		div $t1, $a3 
+        	mfhi $t4 # getting the remainder from hi register
+        	
+        	move $v0, $t4 # moving t4 to v0
+        	sw $v0, x # saving the x value
+		jr $ra # returning the main
+		
+	positive:
+        	div $t1, $a3
+        	mfhi $t4 # getting the remainder from hi register
+        	
+        	move $v0, $t4 # moving t4 to v0
+        	sw $v0, x # saving the x value
+        	jr $ra # returning the main
+        	
+#################################
+#					 	#
+#     	 data segment		#
+#						#
+#################################
+
+	.data
+welcome: .asciiz "Welcome to bsy's basic calculator!\n This program calculates x = a * (b - c) % d \n"
+entera: .asciiz "What is the value of a?: "
+enterb: .asciiz "What is the value of b?: "
+enterc: .asciiz "What is the value of c?: "
+enterd: .asciiz "What is the value of d?: "
+hmm: .asciiz "Hmm... Let me evaluate this hard-looking problem!\n"
+result: .asciiz "The result... wait for it ...is: "
+bye: .asciiz "Thanks for using this simple mips program, see you!\n"
+endl: .asciiz "\n"
+a: .word 0
+b: .word 0
+c: .word 0
+d: .word 0
+x: .word 0
+
+##
+## end of file lab1part2.asm
+
+
+
+##
+## A program which finds min, max of an array and average of elements.
+## Inputs the size and elements of the array and displays them in terms of both address and value. 
+##
+
+#########################################
+#					#
+#  Created by Berk Saltuk Yılmaz (bsy)	#
+#					#
+#########################################
+
+
+#################################
+#					 	#
+#     	 text segment		#
+#						#
+#################################
+
+.text		
+	.globl __start	
+	
+__start:
+
+	la $a0, prompt	# output prompt message on terminal
+       	li $v0, 4	# syscall 4 prints the string
+       	syscall
+       
+      	la $a0, enterSize # asking for the size of the array
+       	li $v0, 4 # syscall 4 prints the string
+       	syscall
+       
+       	li $v0, 5
+       	syscall
+       	sw $v0, arrsize # keeping the size of the array
+	
+	jal readElements
+	
+	jal printArray
+	
+	jal findMax
+	jal findMin
+	
+	la $a0, bye	# output prompt message on terminal
+        li $v0, 4	# syscall 4 prints the string
+        syscall
+	
+	li $v0,10		# system call to exit
+        syscall		#    bye bye
+        
+       
+readElements:
+	la $t0, array
+	lw $t1, arrsize
+	
+	la $a0, enterElement # asking for the elements of the array
+        li $v0, 4 # syscall 4 prints the string
+        syscall
+	
+	read:
+		li $v0, 5
+        	syscall
+		
+		sw $v0, 0($t0)
+		addi $t0, $t0, 4 # incrementing the addres
+		subi $t1, $t1, 1 # decrementing the counter
+		bgt $t1, $zero, read
+	jr $ra
+
+printArray:
+	la $a0, memadd # Memory address and element 
+        li $v0, 4 # syscall 4 prints the string
+        syscall
+        
+        la $a0, posval # pos and value headers
+        li $v0, 4 # syscall 4 prints the string
+        syscall
+        
+        la $a0, separator # printing a separator
+        li $v0, 4 # syscall 4 prints the string
+        syscall
+        
+        la $t0, array
+	lw $t1, arrsize
+
+        print: 
+		add $a0, $zero, $t0
+		li $v0, 34
+		syscall
+		
+		la $a0, space	# output prompt message on terminal
+       		li $v0, 4	# syscall 4 prints the string
+      		syscall
+		
+        	lw $a0, 0($t0)
+        	li $v0 1
+        	syscall
+        	
+        	la $a0, endl	# output prompt message on terminal
+       		li $v0, 4	# syscall 4 prints the string
+      		syscall
+		
+      		lw $t2, 0($t0)
+        	add $t3, $t3, $t2
+
+        	addi $t0, $t0, 4 # incrementing the addres
+		subi $t1, $t1, 1 # decrementing the counter
+        	bgt $t1, $zero, print
+        
+        
+       	lw $t4, arrsize
+        div $t3, $t4
+        mflo $t3
+       	sw $t3, avg
+        
+        la $a0, endl	# output prompt message on terminal
+        li $v0, 4	# syscall 4 prints the string
+       	syscall
+        	
+        la $a0, ans1	# output prompt message on terminal
+        li $v0, 4	# syscall 4 prints the string
+        syscall	
+        
+        lw $a0, avg
+        li $v0 1
+        syscall
+        
+        la $a0, endl	# output prompt message on terminal
+        li $v0, 4	# syscall 4 prints the string
+        syscall	
+        
+        jr $ra
+	
+findMax:
+	la $t0, array
+	lw $t1, arrsize	
+	
+	lw $s0, 0($t0)
+	find: 
+		blt $t1, $zero, done
+		addi $t0, $t0, 4 # incrementing the addres
+		lw $t3, 0($t0)
+		bge $s0, $t3, newmax
+		lw $s0, 0($t0)
+
+	newmax:
+		subi $t1, $t1, 1 # decrementing the counter
+		
+		j find
+
+	done: 
+		sw $s0, max
+		la $a0, ans2	# output prompt message on terminal
+       		li $v0, 4	# syscall 4 prints the string
+       		syscall	
+        
+        	li $v0 1
+        	lw $a0, max
+        	
+       		syscall
+        	
+       		la $a0, endl	# output prompt message on terminal
+		li $v0, 4	# syscall 4 prints the string
+       		syscall	
+     
+  		jr $ra    
+ 
+findMin:
+	la $t0, array
+	lw $t1, arrsize	
+	
+	lw $s0, 0($t0)
+	fMin: 
+		blt $t1, $zero, donemin
+		addi $t0, $t0, 4 # incrementing the addres
+		lw $t3, 0($t0)
+		ble $s0, $t3, newmin
+		lw $s0, 0($t0)
+
+	newmin:
+		subi $t1, $t1, 1 # decrementing the counter
+		j fMin
+
+	donemin: 
+		sw $s0, min
+		la $a0, ans3	# output prompt message on terminal
+       		li $v0, 4	# syscall 4 prints the string
+       		syscall	
+        
+        	li $v0 1
+        	lw $a0, min
+        	
+       		syscall
+        	
+       		la $a0, endl	# output prompt message on terminal
+		li $v0, 4	# syscall 4 prints the string
+       		syscall	
+     
+  		jr $ra  	
+#################################
+#					 	#
+#     	 data segment		#
+#						#
+#################################
+
+	.data
+array: .space 80 #4 for each so max 20 elements
+arrsize: .word 0
+prompt:	.asciiz "Welcome! This program will do several things with the array you will give. \n"
+enterSize: .asciiz "Can you enter the size of your array? (Max 20 would be good :D) \n"
+enterElement: .asciiz "Can you enter the elements of your array? \n"
+memadd: .asciiz "Memory Address     Array Element\n"
+posval: .asciiz "Position (hex)     Value (int)\n"
+separator: "================   ================\n"
+ans1:	.asciiz "Average: "
+ans2:   .asciiz "Max: "
+ans3: .asciiz "Min: "
+avg: .word 0
+min: .word 0
+max: .word 0
+bye:    .asciiz "Thanks for using this program! \n"
+space: .asciiz "         "
+endl:	.asciiz "\n"
+
+##
+## end of file lab1part3.asm
+
+
+
+##
+## A program which evaluates  A = (B * C + D / B - C ) % B \n.
+## Inputs B, C and D from the user and finds A.
+##
+
+#########################################
+#					#
+#  Created by Berk Saltuk Yılmaz (bsy)	#
+#					#
+#########################################
+
+
+#################################
+#					 	#
+#     	 text segment		#
+#						#
+#################################
+
+.text		
+	.globl __start	
+	
+__start:
+
+	la $a0, welcome # prompting welcome message
+	li $v0, 4
+	syscall
+	
+        la $a0, enterb # input b msg
+	li $v0, 4
+	syscall
+	
+        li $v0, 5 # save b
+        syscall
+        sw $v0, b
+        
+        la $a0, endl
+	li $v0, 4
+	syscall
+	
+	la $a0, enterc # input c msg
+	li $v0, 4
+	syscall
+	
+        li $v0, 5 # save c
+        syscall
+        sw $v0, c
+        
+        la $a0, endl
+	li $v0, 4
+	syscall
+	
+	la $a0, enterd # input d msg
+	li $v0, 4
+	syscall
+	
+        li $v0, 5 # save d
+        syscall
+        sw $v0, d
+        
+        la $a0, endl
+	li $v0, 4
+	syscall
+	
+	la $a0, hmm # calculating msg
+	li $v0, 4
+	syscall
+
+	lw $a0, b # passing 4 arguments to calculator method
+	lw $a1, c
+	lw $a2, d
+	
+	jal calculator # jump and link calculator
+	
+	la $a0, result # prompting result msg
+	li $v0, 4
+	syscall
+	
+	lw $a0, a
+	li $v0 1
+	syscall
+	
+	la $a0, endl
+	li $v0, 4
+	syscall
+	
+	la $a0, explanation # bye message
+	li $v0, 4
+	syscall
+	la $a0, bye # bye message
+	li $v0, 4
+	syscall
+	
+	li $v0,10		# system call to exit
+        syscall		#    bye bye
+        
+calculator:
+
+        mult $a0, $a1
+        mflo $t1
+        
+        div $a2, $a0
+        mflo $t2
+        
+        add $t1, $t1, $t2
+        
+        sub $t1, $t1, $a1
+        
+        bge $t1, $zero, positive # if result of the part before modulo >= 0, branch to positive part
+
+	negative: 
+		
+		loop: # t1 = t1 + d until the result is greater than 0
+			add, $t1, $t1, $a0
+			ble $t1, $zero, loop
+		
+		div $t1, $a0 
+        	mfhi $t4 # getting the remainder from hi register
+        	
+        	move $v0, $t4 # moving t4 to v0
+        	sw $v0, a # saving the x value
+		jr $ra # returning the main
+		
+	positive:
+        	div $t1, $a0
+        	mfhi $t4 # getting the remainder from hi register
+        	
+        	move $v0, $t4 # moving t4 to v0
+        	sw $v0, a # saving the x value
+        	jr $ra # returning the main
+        	
+#################################
+#					 	#
+#     	 data segment		#
+#						#
+#################################
+
+	.data
+welcome: .asciiz "Welcome to bsy's basic calculator!\n This program calculates A= (B * C + D / B - C ) % B \n"
+enterb: .asciiz "What is the value of b?: "
+enterc: .asciiz "What is the value of c?: "
+enterd: .asciiz "What is the value of d?: "
+hmm: .asciiz "Give me a moment...\n"
+result: .asciiz "The result is: "
+explanation: .asciiz "This program first evaluates B * C and holds it, \nsecondly it evaluates D / B and adds these two results (Lets say temp) \nThen it subtracts C from this result and finds the remainder from the division with B.\n"
+bye: .asciiz "Thanks for using this simple mips program, see you!\n"
+endl: .asciiz "\n"
+b: .word 0
+c: .word 0
+d: .word 0
+a: .word 0
+##
+## end of file lab1part4.asm

@@ -1,0 +1,385 @@
+CS224
+01
+01
+Berk Saltuk Yılmaz
+21903419
+
+
+##
+## Part 3
+##
+
+##
+## A program which finds min, max of an array and average of elements.
+## Inputs the size and elements of the array and displays them in terms of both address and value. 
+##
+
+#########################################
+#					#
+#  Created by Berk Saltuk Yılmaz (bsy)	#
+#					#
+#########################################
+
+
+#################################
+#					 	#
+#     	 text segment		#
+#						#
+#################################
+
+.text		
+	.globl __start	
+	
+__start:
+
+	la $a0, prompt	# output prompt message on terminal
+       	li $v0, 4	# syscall 4 prints the string
+       	syscall
+	
+	jal printArray
+	
+	jal findMax
+	jal findMin
+	
+	la $a0, bye	# output prompt message on terminal
+        li $v0, 4	# syscall 4 prints the string
+        syscall
+	
+	li $v0,10		# system call to exit
+        syscall		#    bye bye
+        
+       
+
+printArray:
+	la $a0, memadd # Memory address and element 
+        li $v0, 4 # syscall 4 prints the string
+        syscall
+        
+        la $a0, posval # pos and value headers
+        li $v0, 4 # syscall 4 prints the string
+        syscall
+        
+        la $a0, separator # printing a separator
+        li $v0, 4 # syscall 4 prints the string
+        syscall
+        
+        la $t0, array
+	lw $t1, arrsize
+
+        print: 
+		add $a0, $zero, $t0
+		li $v0, 34
+		syscall
+		
+		la $a0, space	# output prompt message on terminal
+       		li $v0, 4	# syscall 4 prints the string
+      		syscall
+		
+        	lw $a0, 0($t0)
+        	li $v0 1
+        	syscall
+        	
+        	la $a0, endl	# output prompt message on terminal
+       		li $v0, 4	# syscall 4 prints the string
+      		syscall
+		
+      		lw $t2, 0($t0)
+        	add $t3, $t3, $t2
+
+        	addi $t0, $t0, 4 # incrementing the addres
+		subi $t1, $t1, 1 # decrementing the counter
+        	bgt $t1, $zero, print
+        
+        
+       	lw $t4, arrsize
+        div $t3, $t4
+        mflo $t3
+       	sw $t3, avg
+        
+        la $a0, endl	# output prompt message on terminal
+        li $v0, 4	# syscall 4 prints the string
+       	syscall
+        	
+        la $a0, ans1	# output prompt message on terminal
+        li $v0, 4	# syscall 4 prints the string
+        syscall	
+        
+        lw $a0, avg
+        li $v0 1
+        syscall
+        
+        la $a0, endl	# output prompt message on terminal
+        li $v0, 4	# syscall 4 prints the string
+        syscall	
+        
+        jr $ra
+	
+findMax:
+	la $t0, array
+	lw $s0, 0($t0)
+	
+	lw $t1, arrsize	
+	
+	find: 
+		ble $t1, $zero, done
+		addi $t0, $t0, 4 # incrementing the addres
+		lw $t3, ($t0)
+		bge $s0, $t3, newmax
+		lw $s0, 0($t0)
+
+	newmax:
+		subi $t1, $t1, 1 # decrementing the counter
+		
+		j find
+
+	done: 
+		
+		la $a0, ans2	# output prompt message on terminal
+       		li $v0, 4	# syscall 4 prints the string
+       		syscall	
+        
+        	li $v0 1
+        	la $a0 ($s0)
+        	
+       		syscall
+        	
+       		la $a0, endl	# output prompt message on terminal
+		li $v0, 4	# syscall 4 prints the string
+       		syscall	
+     
+  		jr $ra    
+ 
+findMin:
+
+	la $t0, array
+	lw $s0, 0($t0)
+	
+	lw $t1, arrsize	
+		
+	for: 
+		ble $t1, $zero, donemin
+		addi $t0, $t0, 4 # incrementing the addres
+		lw $t3, ($t0)
+		ble $s0, $t3, newmin
+		lw $s0, 0($t0)
+
+	newmin:
+		subi $t1, $t1, 1 # decrementing the counter
+		
+		j for
+
+	donemin: 
+		la $a0, ans3	# output prompt message on terminal
+       		li $v0, 4	# syscall 4 prints the string
+       		syscall	
+        
+        	li $v0 1
+        	la $a0 ($s0)
+       		syscall
+        	
+       		la $a0, endl	# output prompt message on terminal
+		li $v0, 4	# syscall 4 prints the string
+       		syscall	
+     
+  		jr $ra   	
+#################################
+#					 	#
+#     	 data segment		#
+#						#
+#################################
+
+	.data
+array: .word 10, 20, 2, 4, 23, 82, 23 
+arrsize: .word 7
+prompt:	.asciiz "Welcome! This program will do several things with the array you will give. \n"
+
+memadd: .asciiz "Memory Address     Array Element\n"
+posval: .asciiz "Position (hex)     Value (int)\n"
+separator: "================   ================\n"
+ans1:	.asciiz "Average: "
+ans2:   .asciiz "Max: "
+ans3: .asciiz "Min: "
+avg: .word 0
+
+bye:    .asciiz "Thanks for using this program! \n"
+space: .asciiz "         "
+endl:	.asciiz "\n"
+
+##
+## end of file lab1part3.asm
+
+
+##
+## Part 4
+##
+
+##
+## A program which evaluates  X = ( A / B ) + ( C * D - A ) % B.
+## Inputs A, B, C and D from the user and finds X.
+##
+
+#########################################
+#					#
+#  Created by Berk Saltuk Yılmaz (bsy)	#
+#					#
+#########################################
+
+
+#################################
+#					 	#
+#     	 text segment		#
+#						#
+#################################
+
+.text		
+	.globl __start	
+	
+__start:
+
+	la $a0, welcome # prompting welcome message
+	li $v0, 4
+	syscall
+	
+	la $a0, entera # input a msg
+	li $v0, 4
+	syscall
+	
+        li $v0, 5 # save a
+        syscall
+        sw $v0, a
+        
+        la $a0, endl
+	li $v0, 4
+	syscall
+	
+        la $a0, enterb # input b msg
+	li $v0, 4
+	syscall
+	
+        li $v0, 5 # save b
+        syscall
+        sw $v0, b
+        
+        la $a0, endl
+	li $v0, 4
+	syscall
+	
+	la $a0, enterc # input c msg
+	li $v0, 4
+	syscall
+	
+        li $v0, 5 # save c
+        syscall
+        sw $v0, c
+        
+        la $a0, endl
+	li $v0, 4
+	syscall
+	
+	la $a0, enterd # input d msg
+	li $v0, 4
+	syscall
+	
+        li $v0, 5 # save d
+        syscall
+        sw $v0, d
+        
+        la $a0, endl
+	li $v0, 4
+	syscall
+	
+	la $a0, hmm # calculating msg
+	li $v0, 4
+	syscall
+
+	lw $a0, a # passing 4 arguments to calculator method
+	lw $a1, b
+	lw $a2, c
+	lw $a3, d 
+	jal calculator # jump and link calculator
+	
+	la $a0, result # prompting result msg
+	li $v0, 4
+	syscall
+	
+	lw $a0, x
+	li $v0 1
+	syscall
+	
+	la $a0, endl
+	li $v0, 4
+	syscall
+	
+	la $a0, explanation # bye message
+	li $v0, 4
+	syscall
+	
+	la $a0, bye # bye message
+	li $v0, 4
+	syscall
+	
+	li $v0,10		# system call to exit
+        syscall		#    bye bye
+        
+calculator:
+
+        div $a0, $a1 # (A/B) part, keeping the result in $t2 register
+        mflo $t2
+        
+        mult $a2, $a3 # C * D keeping the result in $t1 register
+        mflo $t1
+        
+        sub $t1, $t1, $a0 # ( t1 - A ) or C*D - A
+        
+        
+        bge $t1, $zero, positive # if result of the part before modulo >= 0, branch to positive part
+
+	negative: 
+		
+		loop: # t1 = t1 + d until the result is greater than 0
+			add, $t1, $t1, $a1
+			ble $t1, $zero, loop
+		
+		div $t1, $a1 
+        	mfhi $t4 # getting the remainder from hi register
+        	
+        	add $t4, $t4, $t2
+        	move $v0, $t4 # moving t4 to v0
+        	sw $v0, x # saving the x value
+		jr $ra # returning the main
+		
+	positive:
+        	div $t1, $a1
+        	mfhi $t4 # getting the remainder from hi register
+        	
+        	add $t4, $t4, $t2
+        	
+        	move $v0, $t4 # moving t4 to v0
+        	sw $v0, x # saving the x value
+        	jr $ra # returning the main
+        	
+#################################
+#					 	#
+#     	 data segment		#
+#						#
+#################################
+
+	.data
+welcome: .asciiz "Welcome to bsy's basic calculator!\n This program calculates X = ( A / B ) + ( C * D - A ) % B \n"
+entera: .asciiz "What is the value of a?: "
+enterb: .asciiz "What is the value of b?: "
+enterc: .asciiz "What is the value of c?: "
+enterd: .asciiz "What is the value of d?: "
+hmm: .asciiz "Give me a moment...\n"
+result: .asciiz "The result is: "
+explanation: .asciiz "This program first calculates ( A / B ) and keeps it,\nSecondly it evaluates C*D and subtracts A from it,\nThen finds the second part's remainder from the division by B\nFinally it adds this to the result of first part.\n"
+bye: .asciiz "That's it, thanks for using this simple mips program, see you!\n"
+endl: .asciiz "\n"
+
+a: .word 0
+b: .word 0
+c: .word 0
+d: .word 0
+x: .word 0
+##
+## end of file lab1part4.asm
